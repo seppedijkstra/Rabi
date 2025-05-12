@@ -34,7 +34,6 @@ save_path = os.path.join(save_dir, f"Rabi_{timestamp}")
 os.makedirs(save_path, exist_ok=True)  # Create folder if it doesn't exist
 print(f"Saving data to: {save_path}")
 
-
 # ======= SETUP DEVICE SESSION OF AWG ===========
 session = Session("localhost")
 device = session.connect_device("DEV12120")
@@ -43,6 +42,13 @@ device = session.connect_device("DEV12120")
 
 LASER_CHANNEL = 1
 MW_CHANNEL = 2
+
+device.sgchannels[MW_CHANNEL].configure_channel(
+    enable=True,
+    output_range=0,
+    center_frequency=2.87e9,
+    rf_path=1
+)
 
 awg_node_laser = device.sgchannels[LASER_CHANNEL].awg
 awg_node_mw = device.sgchannels[MW_CHANNEL].awg
@@ -101,7 +107,7 @@ for repetition in range(num_measurements):
         countrate.startFor(10e6)
         countrate.waitUntilFinished()
         pl_rate = countrate.getData()[0]
-        print(f"PL Measurement after pulse {mw_time} us, repetition {repetition}")
+        print(f"PL Measurement after pulse {mw_time} us, repetition {repetition+1}")
         # Store PL data
         PL_values[repetition, index] = pl_rate
 
