@@ -14,7 +14,7 @@ awg_node_laser = device.sgchannels[LASER_CHANNEL].awg
 awg_node_mw = device.sgchannels[MW_CHANNEL].awg
 
 SEQUENCER_CODE_LASER = r"""
-// Define timing and waveform parameters (fill these in with your values)
+// Define timing and waveform parameters
 const t_first_pulse = 1;    // Duration of first block pulse in seconds 
 const t_delay = 1;          // Delay between pulses in seconds
 
