@@ -9,7 +9,7 @@ from zhinst.toolkit import Waveforms
 
 def create_mw_sequence(pulse_length):
      return r"""
-    // Define timing and waveform parameters (fill these in with your values)
+    // Define timing and waveform parameters
     const t_first_pulse = """ + str(pulse_length) + r""";    // Duration of first block pulse in seconds 
 
     // Define sample rate
