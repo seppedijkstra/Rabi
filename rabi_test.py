@@ -1,39 +1,78 @@
-from zhinst.toolkit import Session
+from laboneq.simple import *
 
 
-# ======= SETUP DEVICE SESSION OF AWG ===========
-session = Session("localhost")
-device = session.connect_device("DEV12120")
+descriptor = """
+instruments:
+    SHFSG:
+        - address: DEV12120
+          uid: device_shfsg
+          interface: 1GbE
 
-# ======= SETUP THE LASER AND MW DEVICES ===========
+connections:
+  device_shfsg:
+    - iq_signal: laser_out/drive
+      ports: [SGCHANNELS/0/OUTPUT]
 
-LASER_CHANNEL = 1
-MW_CHANNEL = 2
-
-awg_node_laser = device.sgchannels[LASER_CHANNEL].awg
-awg_node_mw = device.sgchannels[MW_CHANNEL].awg
-
-SEQUENCER_CODE_LASER = r"""
-// Define timing and waveform parameters
-const t_first_pulse = 1;    // Duration of first block pulse in seconds 
-const t_delay = 1;          // Delay between pulses in seconds
-
-// Define sample rate
-const s_rate = 2.0e9;            // 2 GSa/s, 0.5 ns resolution
-
-// Convert to samples and round to next multiple of 16 for hardware compliance
-const s_first_pulse = round(t_first_pulse * s_rate / 16) * 16;
-const s_delay = round(t_delay * s_rate / 16) * 16;
-
-// Generate block pulses (amplitude = 1.0 for full scale, adjust as needed)
-wave first_pulse = ones(s_first_pulse, 1.0);
-wave second_pulse = ones(s_second_pulse, 1.0);
-
-// Sequence: play first pulse, delay, play second pulse
-playWave(1, first_pulse);          // Play first block wave on output channel 1
-playZero(s_delay);                 // Insert silent delay
+    - iq_signal: rf_out/drive
+      ports: [SGCHANNELS/1/OUTPUT]
 """
-while 1:
-    awg_node_laser.load_sequencer_program(SEQUENCER_CODE_LASER)
-    awg_node_laser.enable_sequencer(single=True)
-    awg_node_laser.wait_done()
+
+device_setup = DeviceSetup.from_descriptor(
+    yaml_text=descriptor,
+    server_host="localhost",
+    server_port='8004',
+    setup_name='Rabi_Setup'
+)
+
+laser_lo = Oscillator(frequency=2.6e9)
+rf_lo = Oscillator(frequency=2.6e9)
+cal = Calibration()
+cal["/logical_signal_groups/laser_out/drive"] = SignalCalibration(local_oscillator=laser_lo)
+cal["/logical_signal_groups/rf_out/drive"] = SignalCalibration(local_oscillator=rf_lo)
+
+device_setup.set_calibration(cal)
+
+
+device_setup.logical_signal_groups["rf_out"].logical_signals["drive"].calibration = SignalCalibration(
+        oscillator=Oscillator(
+            uid="rf_out_osc", frequency=1.8e8, modulation_type=ModulationType.HARDWARE
+        ),
+    )
+
+
+exp = Experiment(
+    uid="rabi_measurement",
+    signals=[
+        ExperimentSignal("laser_signal"),
+        ExperimentSignal("rf_signal")
+    ]
+)
+
+laser_pulse_init = pulse_library.const(length=30e-6, amplitude=0.0, marker=1)
+laser_pulse_readout = pulse_library.const(length=1e-6, amplitude=0.0, marker=1)
+rf_pulse = pulse_library.const(length=4e-6, amplitude=1.0)
+
+with exp.acquire_loop_rt(count=3):
+    with exp.section(uid="init_section"):
+        for _ in range(100):
+            exp.play(signal="laser_signal", pulse=laser_pulse_init)
+        exp.delay(signal="laser_signal", time=3000e-6)
+
+
+
+exp.set_signal_map({
+    "laser_signal": device_setup.logical_signal_groups["laser_out"].logical_signals["drive"],
+    "rf_signal": device_setup.logical_signal_groups["rf_out"].logical_signals["drive"]
+})
+
+
+session = Session(device_setup)
+session.connect(do_emulation=True)
+
+
+session.run(exp)
+
+
+compiled_exp = session.compile(exp)
+
+show_pulse_sheet("Rabi", compiled_exp, interactive=False)
