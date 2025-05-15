@@ -11,6 +11,7 @@ device = session.connect_device(DEVICE_ID)
 
 channel = device.sgchannels[0]
 
+synth = channel.synthesizer()
 device.synthesizers[synth].centerfreq(1e9)
 channel.output.on(1)
 channel.output.range(10)
