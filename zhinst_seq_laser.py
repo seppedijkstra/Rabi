@@ -31,6 +31,18 @@ waitWave();
 setTrigger(0);
 """
 
+seqc_code2 = """
+const marker_pos = 3000;
+
+wave w_gauss  = gauss(8000, 4000, 1000);
+wave w_left   = marker(marker_pos, 0);
+wave w_right  = marker(8000-marker_pos, 1);
+wave w_marker = join(w_left, w_right);
+wave w_gauss_marker = w_gauss + w_marker;
+
+playWave(1, w_gauss_marker);
+"""
+
 awg.load_sequencer_program(seqc_code)
 
 awg.enable_sequencer(single=False)
