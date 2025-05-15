@@ -16,7 +16,6 @@ device.synthesizers[synth].centerfreq(1e9)
 channel.output.on(1)
 channel.output.range(10)
 channel.output.rflfpath(1)
-channel.marker[0].source("awgTrigger1")
 
 awg = channel.awg
 awg.outputamplitude(1)
@@ -24,11 +23,19 @@ awg.modulation.enable(0)
 
 seqc_code = """
 wave w_gauss = gauss(8000, 4000, 1000);
+wave padding = zeros(2000);
+wave microwave = ones(12000);
+wave read_out = zeros(2000);
 
 setTrigger(1);
-playWave(1, w_gauss);
+playWave(1, padding);
+waitWave();
+playWave(1, microwave);
+waitWave();
+playWave(1, padding);
 waitWave();
 setTrigger(0);
+playWave(1, read_out);
 """
 
 seqc_code2 = """
