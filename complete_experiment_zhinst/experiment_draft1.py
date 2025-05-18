@@ -6,6 +6,7 @@ from datetime import datetime
 import matplotlib.pyplot as plt
 
 
+# This function returns 2 items in a list the second item will be the one for the second trigger and the first one for the AOM and RF circuit
 def create_seqc_code(pulse_length):
     return [r"""
         wave padding = zeros(2000);
@@ -34,7 +35,6 @@ def create_seqc_code(pulse_length):
         """]
 
 # setup output directory
-
 save_dir = "/home/dl-lab-pc3/Documents/Nikolaj_Nitzsche/Rabi_bap"
 timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")  # Timestamped folder
 save_path = os.path.join(save_dir, f"Rabi_{timestamp}")
@@ -52,64 +52,74 @@ session = Session(SERVER_HOST)
 # connect to device
 device = session.connect_device(DEVICE_ID)
 
-channel_1 = device.sgchannels[0]
-channel_2 = device.sgchannels[0]
+channel_1 = device.sgchannels[0] # The first channel
+channel_2 = device.sgchannels[1] # The second channel
 
 # setup channel 1
 synth_1 = channel_1.synthesizer()
-device.synthesizers[synth_1].centerfreq(1e9)
+device.synthesizers[synth_1].centerfreq(2.8e9) # @TODO change to 2.87 GHz I will set it to 2.8 now because we can only set it in steps of 0.2, but maybe a modulation to 2.87 GHz is needed
 channel_1.output.on(1)
-channel_1.output.range(10)
-channel_1.output.rflfpath(1)
+channel_1.output.range(10) # @TODO maybe a just this number because we had some errors in the LabOne UI, because the power was to low
+channel_1.output.rflfpath(1)  # This sets the RF/LF path 0 low frequency and 1 high frequency, but 1 is default so not necessary
 channel_1.synchronization.enable(True)
 
 awg_1 = channel_1.awg
 awg_1.outputamplitude(1)
 awg_1.modulation.enable(0)
 
+# awg_1.trigger.source('awgs_trigger1') TODO we can also set the source of both AWG we havent tried this yet
+
 # setup channel 2
 synth_2 = channel_2.synthesizer()
-device.synthesizers[synth_2].centerfreq(1e9)
+device.synthesizers[synth_2].centerfreq(2.8e9)
 channel_2.output.on(1)
 channel_2.output.range(10)
-channel_2.output.rflfpath(1)
+channel_2.output.rflfpath(1) # This sets the RF/LF path 0 low frequency and 1 high frequency, but 1 is default so not necessary
 channel_2.synchronization.enable(True)
 
 awg_2 = channel_2.awg
 awg_2.outputamplitude(1)
 awg_2.modulation.enable(0)
 
+# awg_2.trigger.source('awgs_trigger1') TODO we can also set the source of both AWG we havent tried this yet
+
 
 # time tagger setup
-
-counter_input = 1
-gate_input = 2
+data_channel = 1
+trigger_channel = 2
 
 timetagger = TimeTagger.createTimeTaggerNetwork('localhost:41101')
 
-timetagger.setTriggerLevel(counter_input, 0.25)
-timetagger.setInputDelay(counter_input, 0)
+# Previously we set a trigger level for the data channel now idea why and not necessary
 
-timetagger.setTriggerLevel(gate_input, 0.5)
-timetagger.setInputDelay(gate_input, 0)
+# Set trigger voltage levels and delays to zero to ensure everything is set to zero
+timetagger.setTriggerLevel(trigger_channel, 0.5)
+timetagger.setInputDelay(trigger_channel, 0)
+timetagger.setInputDelay(data_channel, 0)
+# timetagger.setInputDelay(trigger_channel, 0) Dont think this will be needed because we dont want this delay
 
 
-# experiment
-
+# experiment we will sweep the RF from 0.5 microsecond to 4 microseconds with steps of 0.002 microseconds in total 250 repetitions
+repetitions = 250 # We will are planning to do 250 so we can do more if needed
 pulse_lengths = np.arange(0.5e-6,4e-6,0.002e-6)
-photon_counts = np.zeros((250, len(pulse_lengths)))
+photon_counts = np.zeros((repetitions, len(pulse_lengths)))
 
-for i,pulse in enumerate(pulse_lengths):
+# TODO I was wondering weren't we supposed to do it the other way around? Is there a reason for this, because I assume that it would make more sense to do the repititions first and then the pulse lengths, because if we have interference for a while it would influence one whole pulse and not one the pulses??
 
-    for repetition in range(250):
+# Do the whole experiment for a total of 250 times and then for every pulse in the pulse train, look comment above I changed it to it what I find logical
+for repetition in range(repetitions):
+    for i,pulse in enumerate(pulse_lengths):
+        # Create and load the sequencer program for both channels
         seqc = create_seqc_code(pulse)
         awg_1.load_sequencer_program(seqc[0])
         awg_2.load_sequencer_program(seqc[1])
 
-        counter = CountBetweenMarkers(tagger=timetagger,
-                                      click_channel=counter_input,
-                                      begin_channel=gate_input,
-                                      end_channel=-gate_input,
+
+        # Count between the rising and falling edge
+        counter = TimeTagger.CountBetweenMarkers(tagger=timetagger,
+                                      click_channel=data_channel,
+                                      begin_channel=trigger_channel,
+                                      end_channel=-trigger_channel,
                                       n_values=1,
                                       )
 
@@ -119,6 +129,7 @@ for i,pulse in enumerate(pulse_lengths):
         pl_rate = counter.getData()[0]
 
         photon_counts[repetition, i] = pl_rate
+
 
 
 avg_pl = np.mean(photon_counts, axis=0)  # Average over all measurements
