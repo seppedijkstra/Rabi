@@ -10,7 +10,7 @@ session = Session(SERVER_HOST)
 device = session.connect_device(DEVICE_ID)
 
 channel_1 = device.sgchannels[0]
-channel_2 = device.sgchannels[0]
+channel_2 = device.sgchannels[1]
 
 # setup channel 1
 synth_1 = channel_1.synthesizer()

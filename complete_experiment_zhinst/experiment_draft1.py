@@ -93,6 +93,7 @@ timetagger = TimeTagger.createTimeTaggerNetwork('localhost:41101')
 # Previously we set a trigger level for the data channel now idea why and not necessary
 
 # Set trigger voltage levels and delays to zero to ensure everything is set to zero
+timetagger.setTriggerLevel(counter_input, 0.25)
 timetagger.setTriggerLevel(trigger_channel, 0.5)
 timetagger.setInputDelay(trigger_channel, 0)
 timetagger.setInputDelay(data_channel, 0)

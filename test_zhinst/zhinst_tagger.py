@@ -80,7 +80,7 @@ gate_input = 2
 timetagger = TimeTagger.createTimeTaggerNetwork('localhost:41101')
 
 # The counter input doesnt need a
-# timetagger.setTriggerLevel(counter_input, 0.25)
+timetagger.setTriggerLevel(counter_input, 0.25)
 timetagger.setInputDelay(counter_input, 0)
 
 timetagger.setTriggerLevel(gate_input, 0.5)
