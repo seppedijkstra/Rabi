@@ -54,7 +54,7 @@ playWave(1, read_out);
 
 seqc_code_2 = """
 wave read_out_delay = zeros(12000);
-wave read_out_marker = ones(10000);
+wave read_out_marker = zeros(10000);
 
 playWave(1, read_out_delay);
 waitWave();
