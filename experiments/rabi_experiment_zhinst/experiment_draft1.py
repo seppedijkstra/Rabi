@@ -59,7 +59,7 @@ channel_2 = device.sgchannels[1] # The second channel
 synth_1 = channel_1.synthesizer()
 device.synthesizers[synth_1].centerfreq(2.8e9) # @TODO change to 2.87 GHz I will set it to 2.8 now because we can only set it in steps of 0.2, but maybe a modulation to 2.87 GHz is needed
 channel_1.output.on(1)
-channel_1.output.range(10) # @TODO maybe a just this number because we had some errors in the LabOne UI, because the power was to low
+channel_1.output.range(0) # @TODO maybe a just this number because we had some errors in the LabOne UI, because the power was to low
 channel_1.output.rflfpath(1)  # This sets the RF/LF path 0 low frequency and 1 high frequency, but 1 is default so not necessary
 channel_1.synchronization.enable(True)
 channel_1.marker.source("awg_trigger0")
@@ -72,7 +72,7 @@ awg_1.modulation.enable(0)
 synth_2 = channel_2.synthesizer()
 device.synthesizers[synth_2].centerfreq(2.8e9)
 channel_2.output.on(1)
-channel_2.output.range(10)
+channel_2.output.range(0)
 channel_2.output.rflfpath(1) # This sets the RF/LF path 0 low frequency and 1 high frequency, but 1 is default so not necessary
 channel_2.synchronization.enable(True)
 channel_2.marker.source("awg_trigger0")

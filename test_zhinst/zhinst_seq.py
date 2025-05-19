@@ -14,7 +14,7 @@ channel = device.sgchannels[0]
 synth = channel.synthesizer()
 device.synthesizers[synth].centerfreq(1e9)
 channel.output.on(1)
-channel.output.range(10)
+channel.output.range(0)
 channel.output.rflfpath(1)
 channel.marker[0].source("awgTrigger1")
 
