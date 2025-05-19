@@ -85,7 +85,7 @@ awg_2.modulation.enable(0)
 
 
 # time tagger setup
-data_channel = 1
+counter_channel = 1
 trigger_channel = 2
 
 timetagger = TimeTagger.createTimeTaggerNetwork('localhost:41101')
@@ -93,10 +93,10 @@ timetagger = TimeTagger.createTimeTaggerNetwork('localhost:41101')
 # Previously we set a trigger level for the data channel now idea why and not necessary
 
 # Set trigger voltage levels and delays to zero to ensure everything is set to zero
-timetagger.setTriggerLevel(counter_input, 0.25)
+timetagger.setTriggerLevel(counter_channel, 0.25)
 timetagger.setTriggerLevel(trigger_channel, 0.5)
 timetagger.setInputDelay(trigger_channel, 0)
-timetagger.setInputDelay(data_channel, 0)
+timetagger.setInputDelay(counter_channel, 0)
 # timetagger.setInputDelay(trigger_channel, 0) Dont think this will be needed because we dont want this delay
 
 
@@ -118,11 +118,11 @@ for repetition in range(repetitions):
 
         # Count between the rising and falling edge
         counter = TimeTagger.CountBetweenMarkers(tagger=timetagger,
-                                      click_channel=data_channel,
-                                      begin_channel=trigger_channel,
-                                      end_channel=-trigger_channel,
-                                      n_values=1,
-                                      )
+                                                 click_channel=counter_channel,
+                                                 begin_channel=trigger_channel,
+                                                 end_channel=-trigger_channel,
+                                                 n_values=1,
+                                                 )
 
         awg_1.enable_sequencer(single=True)
         awg_2.enable_sequencer(single=True)
