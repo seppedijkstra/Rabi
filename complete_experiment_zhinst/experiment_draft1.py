@@ -62,12 +62,11 @@ channel_1.output.on(1)
 channel_1.output.range(10) # @TODO maybe a just this number because we had some errors in the LabOne UI, because the power was to low
 channel_1.output.rflfpath(1)  # This sets the RF/LF path 0 low frequency and 1 high frequency, but 1 is default so not necessary
 channel_1.synchronization.enable(True)
+channel_1.marker.source("awg_trigger0")
 
 awg_1 = channel_1.awg
 awg_1.outputamplitude(1)
 awg_1.modulation.enable(0)
-
-# awg_1.trigger.source('awgs_trigger1') TODO we can also set the source of both AWG we havent tried this yet
 
 # setup channel 2
 synth_2 = channel_2.synthesizer()
@@ -76,13 +75,11 @@ channel_2.output.on(1)
 channel_2.output.range(10)
 channel_2.output.rflfpath(1) # This sets the RF/LF path 0 low frequency and 1 high frequency, but 1 is default so not necessary
 channel_2.synchronization.enable(True)
+channel_2.marker.source("awg_trigger0")
 
 awg_2 = channel_2.awg
 awg_2.outputamplitude(1)
 awg_2.modulation.enable(0)
-
-# awg_2.trigger.source('awgs_trigger1') TODO we can also set the source of both AWG we havent tried this yet
-
 
 # time tagger setup
 counter_channel = 1
@@ -104,8 +101,6 @@ timetagger.setInputDelay(counter_channel, 0)
 repetitions = 250 # We will are planning to do 250 so we can do more if needed
 pulse_lengths = np.arange(0.5e-6,4e-6,0.002e-6)
 photon_counts = np.zeros((repetitions, len(pulse_lengths)))
-
-# TODO I was wondering weren't we supposed to do it the other way around? Is there a reason for this, because I assume that it would make more sense to do the repititions first and then the pulse lengths, because if we have interference for a while it would influence one whole pulse and not one the pulses??
 
 # Do the whole experiment for a total of 250 times and then for every pulse in the pulse train, look comment above I changed it to it what I find logical
 for repetition in range(repetitions):

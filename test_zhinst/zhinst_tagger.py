@@ -22,6 +22,7 @@ channel_1.output.on(1)
 channel_1.output.range(10)
 channel_1.output.rflfpath(1)
 channel_1.synchronization.enable(True)
+channel_1.marker.source("awg_trigger0")
 
 awg_1 = channel_1.awg
 awg_1.outputamplitude(1)
@@ -34,6 +35,7 @@ channel_2.output.on(1)
 channel_2.output.range(10)
 channel_2.output.rflfpath(1)
 channel_2.synchronization.enable(True)
+channel_2.marker.source("awg_trigger0")
 
 awg_2 = channel_2.awg
 awg_2.outputamplitude(1)
