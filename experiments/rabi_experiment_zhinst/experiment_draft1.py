@@ -58,10 +58,13 @@ channel_2 = device.sgchannels[1] # The second channel
 
 # setup channel 1
 synth_1 = channel_1.synthesizer()
-device.synthesizers[synth_1].centerfreq(2.8e9) # @TODO change to 2.87 GHz I will set it to 2.8 now because we can only set it in steps of 0.2, but maybe a modulation to 2.87 GHz is needed
+device.synthesizers[synth_1].centerfreq(2.8e9)
 channel_1.output.on(1)
 channel_1.output.range(0) # @TODO maybe a just this number because we had some errors in the LabOne UI, because the power was to low
 channel_1.output.rflfpath(1)  # This sets the RF/LF path 0 low frequency and 1 high frequency, but 1 is default so not necessary
+channel_1.sines[0].i.enable(1)
+channel_1.sines[0].q.enable(1)
+channel_1.oscs[0].freq(0.07e9)
 channel_1.synchronization.enable(True)
 channel_1.marker.source("awg_trigger0")
 
@@ -100,7 +103,7 @@ timetagger.setInputDelay(counter_channel, 0)
 
 # experiment we will sweep the RF from 0.5 microsecond to 4 microseconds with steps of 0.002 microseconds in total 250 repetitions
 repetitions = 250 # We will are planning to do 250 so we can do more if needed
-pulse_lengths = np.arange(0.5e-6,4e-6,0.002e-6)
+pulse_lengths = np.arange(0.5e-6,4e-6,0.2e-6)
 photon_counts = np.zeros((repetitions, len(pulse_lengths)))
 
 # Do the whole experiment for a total of 250 times and then for every pulse in the pulse train, look comment above I changed it to it what I find logical
@@ -114,6 +117,7 @@ for repetition in range(repetitions):
                                              n_values=len(pulse_lengths),
                                              )
 
+    print("Repetition: ", repetition, " / ", repetitions)
     for i,pulse in enumerate(pulse_lengths):
         # Create and load the sequencer program for both channels
         seqc = create_seqc_code(pulse)
@@ -126,13 +130,20 @@ for repetition in range(repetitions):
         time.sleep(0.2)
 
     pl_rate = counter.getData()
-
+    print(pl_rate)
+    print(counter.getBinWidths())
     photon_counts[repetition] = pl_rate
+
+    time.sleep(1)
+
 
 #
 
 
+
 total_pl = np.sum(photon_counts, axis=0)
+print(total_pl)
+
 #
 # avg_pl = np.mean(photon_counts, axis=0)  # Average over all measurements
 #
