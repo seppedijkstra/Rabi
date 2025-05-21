@@ -100,7 +100,7 @@ timetagger.setInputDelay(counter_channel, 0)
 
 # experiment we will sweep the RF from 0.5 microsecond to 4 microseconds with steps of 0.002 microseconds in total 250 repetitions
 repetitions = 250 # We will are planning to do 250 so we can do more if needed
-pulse_lengths = np.arange(0.5e-6,4e-6,0.002e-6)
+pulse_lengths = np.arange(0.5e-6,4e-6,0.2e-6)
 photon_counts = np.zeros((repetitions, len(pulse_lengths)))
 
 # Do the whole experiment for a total of 250 times and then for every pulse in the pulse train, look comment above I changed it to it what I find logical
@@ -114,6 +114,7 @@ for repetition in range(repetitions):
                                              n_values=len(pulse_lengths),
                                              )
 
+    print("Repetition: ", repetition, " / ", repetitions)
     for i,pulse in enumerate(pulse_lengths):
         # Create and load the sequencer program for both channels
         seqc = create_seqc_code(pulse)
@@ -126,13 +127,17 @@ for repetition in range(repetitions):
         time.sleep(0.2)
 
     pl_rate = counter.getData()
-
+    print(pl_rate)
     photon_counts[repetition] = pl_rate
+
 
 #
 
 
+
 total_pl = np.sum(photon_counts, axis=0)
+print(total_pl)
+
 #
 # avg_pl = np.mean(photon_counts, axis=0)  # Average over all measurements
 #
