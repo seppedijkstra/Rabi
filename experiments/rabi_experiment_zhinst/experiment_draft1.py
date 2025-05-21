@@ -58,10 +58,13 @@ channel_2 = device.sgchannels[1] # The second channel
 
 # setup channel 1
 synth_1 = channel_1.synthesizer()
-device.synthesizers[synth_1].centerfreq(2.8e9) # @TODO change to 2.87 GHz I will set it to 2.8 now because we can only set it in steps of 0.2, but maybe a modulation to 2.87 GHz is needed
+device.synthesizers[synth_1].centerfreq(2.8e9)
 channel_1.output.on(1)
 channel_1.output.range(0) # @TODO maybe a just this number because we had some errors in the LabOne UI, because the power was to low
 channel_1.output.rflfpath(1)  # This sets the RF/LF path 0 low frequency and 1 high frequency, but 1 is default so not necessary
+channel_1.sines[0].i.enable(1)
+channel_1.sines[0].q.enable(1)
+channel_1.oscs[0].freq(0.07e9)
 channel_1.synchronization.enable(True)
 channel_1.marker.source("awg_trigger0")
 
@@ -128,7 +131,10 @@ for repetition in range(repetitions):
 
     pl_rate = counter.getData()
     print(pl_rate)
+    print(counter.getBinWidths())
     photon_counts[repetition] = pl_rate
+
+    time.sleep(1)
 
 
 #
