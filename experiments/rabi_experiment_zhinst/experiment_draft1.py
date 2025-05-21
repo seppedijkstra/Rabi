@@ -3,6 +3,7 @@ from zhinst.toolkit import Session
 import TimeTagger
 import numpy as np
 from datetime import datetime
+import time
 import matplotlib.pyplot as plt
 
 
@@ -129,25 +130,27 @@ for repetition in range(repetitions):
     photon_counts[repetition] = pl_rate
 
 #
+
+
+total_pl = np.sum(photon_counts, axis=0)
 #
 # avg_pl = np.mean(photon_counts, axis=0)  # Average over all measurements
 #
 # # ======= SAVE DATA ===========
-# np.save(os.path.join(save_path, "PL_values.npy"), photon_counts)  # Save as .npy
-# np.savetxt(os.path.join(save_path, "PL_values.csv"), photon_counts, delimiter=",")  # Save as CSV
-# np.savetxt(os.path.join(save_path, "averaged_PL.csv"), np.column_stack((pulse_lengths, avg_pl)), delimiter=",",
-#            header="Driving Time (ms), PL (counts)")
+np.savetxt(os.path.join(save_path, "PL_values.csv"), photon_counts, delimiter=",")  # Save as CSV
+np.savetxt(os.path.join(save_path, "averaged_PL.csv"), np.column_stack((pulse_lengths, total_pl)), delimiter=",",
+           header="Driving Time (ms), PL (counts)")
 #
 # # ======= PLOT & SAVE FIGURE ===========
-# plt.figure(figsize=(8, 6))
-# plt.plot(pulse_lengths, avg_pl, marker='o', linestyle='-', color='b', label="Averaged PL vs. Driving Time")
-# plt.xlabel('Driving Time (ms)')
-# plt.ylabel('PL (counts)')
-# plt.title('Average PL vs. Pulse Time (Rabi Oscillations)')
-# plt.grid(True)
-# plt.legend()
-# plt.savefig(os.path.join(save_path, "Rabi_Oscillations.png"))  # Save plot as PNG
-# plt.show()
-#
-# print(f"Data and plot saved in: {save_path}")
-#
+plt.figure(figsize=(8, 6))
+plt.plot(pulse_lengths, total_pl, marker='o', linestyle='-', color='b', label="Total PL vs. Driving Time")
+plt.xlabel('Driving Time (ms)')
+plt.ylabel('PL (counts)')
+plt.title('Total PL vs. Pulse Time (Rabi Oscillations)')
+plt.grid(True)
+plt.legend()
+plt.savefig(os.path.join(save_path, "Rabi_Oscillations.png"))  # Save plot as PNG
+plt.show()
+
+print(f"Data and plot saved in: {save_path}")
+
