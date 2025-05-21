@@ -104,48 +104,50 @@ photon_counts = np.zeros((repetitions, len(pulse_lengths)))
 
 # Do the whole experiment for a total of 250 times and then for every pulse in the pulse train, look comment above I changed it to it what I find logical
 for repetition in range(repetitions):
+
+    # Count between the rising and falling edge
+    counter = TimeTagger.CountBetweenMarkers(tagger=timetagger,
+                                             click_channel=counter_channel,
+                                             begin_channel=trigger_channel,
+                                             end_channel=-trigger_channel,
+                                             n_values=len(pulse_lengths),
+                                             )
+
     for i,pulse in enumerate(pulse_lengths):
         # Create and load the sequencer program for both channels
         seqc = create_seqc_code(pulse)
         awg_1.load_sequencer_program(seqc[0])
         awg_2.load_sequencer_program(seqc[1])
 
-
-        # Count between the rising and falling edge
-        counter = TimeTagger.CountBetweenMarkers(tagger=timetagger,
-                                                 click_channel=counter_channel,
-                                                 begin_channel=trigger_channel,
-                                                 end_channel=-trigger_channel,
-                                                 n_values=1,
-                                                 )
-
         awg_1.enable_sequencer(single=True)
         awg_2.enable_sequencer(single=True)
 
-        pl_rate = counter.getData()[0]
+        time.sleep(0.2)
 
-        photon_counts[repetition, i] = pl_rate
+    pl_rate = counter.getData()
 
+    photon_counts[repetition] = pl_rate
 
-
-avg_pl = np.mean(photon_counts, axis=0)  # Average over all measurements
-
-# ======= SAVE DATA ===========
-np.save(os.path.join(save_path, "PL_values.npy"), photon_counts)  # Save as .npy
-np.savetxt(os.path.join(save_path, "PL_values.csv"), photon_counts, delimiter=",")  # Save as CSV
-np.savetxt(os.path.join(save_path, "averaged_PL.csv"), np.column_stack((pulse_lengths, avg_pl)), delimiter=",",
-           header="Driving Time (ms), PL (counts)")
-
-# ======= PLOT & SAVE FIGURE ===========
-plt.figure(figsize=(8, 6))
-plt.plot(pulse_lengths, avg_pl, marker='o', linestyle='-', color='b', label="Averaged PL vs. Driving Time")
-plt.xlabel('Driving Time (ms)')
-plt.ylabel('PL (counts)')
-plt.title('Average PL vs. Pulse Time (Rabi Oscillations)')
-plt.grid(True)
-plt.legend()
-plt.savefig(os.path.join(save_path, "Rabi_Oscillations.png"))  # Save plot as PNG
-plt.show()
-
-print(f"Data and plot saved in: {save_path}")
-
+#
+#
+# avg_pl = np.mean(photon_counts, axis=0)  # Average over all measurements
+#
+# # ======= SAVE DATA ===========
+# np.save(os.path.join(save_path, "PL_values.npy"), photon_counts)  # Save as .npy
+# np.savetxt(os.path.join(save_path, "PL_values.csv"), photon_counts, delimiter=",")  # Save as CSV
+# np.savetxt(os.path.join(save_path, "averaged_PL.csv"), np.column_stack((pulse_lengths, avg_pl)), delimiter=",",
+#            header="Driving Time (ms), PL (counts)")
+#
+# # ======= PLOT & SAVE FIGURE ===========
+# plt.figure(figsize=(8, 6))
+# plt.plot(pulse_lengths, avg_pl, marker='o', linestyle='-', color='b', label="Averaged PL vs. Driving Time")
+# plt.xlabel('Driving Time (ms)')
+# plt.ylabel('PL (counts)')
+# plt.title('Average PL vs. Pulse Time (Rabi Oscillations)')
+# plt.grid(True)
+# plt.legend()
+# plt.savefig(os.path.join(save_path, "Rabi_Oscillations.png"))  # Save plot as PNG
+# plt.show()
+#
+# print(f"Data and plot saved in: {save_path}")
+#
