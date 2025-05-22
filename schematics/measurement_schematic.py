@@ -8,13 +8,14 @@ import scipy
 svg_size = (26,30)
 
 
-def make_pulse(start, duration, addzeros = True):
+def make_pulse(start, duration, addzeros = True, before_zeros = True):
     """
     Create a pulse with a given start time and duration.
     """
     length = int(start + duration)
     if(addzeros): pulse = np.zeros(length + 1000)
     else: pulse = np.zeros(length)
+
     pulse[int(start):length] = 1
     return pulse
 
@@ -42,6 +43,8 @@ start += init_time + padding
 rf_first = make_sin(start, pulse_time[0])
 start += pulse_time[0] + padding
 readout_pulse1 = make_pulse(start, readout_time, False)
+tagger_trigger1 = make_pulse(start, readout_time)
+
 start += readout_time
 
 mid_segment = start + 1000
@@ -53,6 +56,7 @@ start += init_time + padding
 rf_last = make_sin(start, pulse_time[-1])
 start += pulse_time[-1] + padding
 readout_pulse2 = make_pulse(start, readout_time, False)
+tagger_trigger2 = make_pulse(start, readout_time, True)
 start += readout_time
 
 # Figures
@@ -73,11 +77,13 @@ channel1.grid(True, which='both', linestyle='--', alpha=0.7)
 channel1.set_xlabel("Time (ps)", fontsize=14)
 channel1.set_ylabel("Voltage (V)", fontsize=14)
 channel1.set_xlim(0, start + padding)
-channel1.set_ylim(0.02, 1.2)  # Adjusted for consistent height
+channel1.set_ylim(0.02, 1.4)  # Adjusted for consistent height
 channel1.plot(rf_first, color='orange', linewidth=8, label='RF Wave')
 channel1.plot(rf_last, color='orange', linewidth=8)
 channel1.plot(init_pulse1, color='red', linewidth=8, label='Init Pulse')
 channel1.plot(init_pulse2, color='red', linewidth=8)
+channel1.plot(readout_pulse1, color='purple', linewidth=8, label='Readout Pulse')
+channel1.plot(readout_pulse2, color='purple', linewidth=8)
 channel1.scatter([mid_segment, mid_segment + 300, mid_segment + 600], [0.5, 0.5, 0.5], color='black', s=300)
 channel1.legend(fontsize=12, loc='upper right')
 
@@ -87,9 +93,9 @@ channel2.grid(True, which='both', linestyle='--', alpha=0.7)
 channel2.set_xlabel("Time (ps)", fontsize=14)
 channel2.set_ylabel("Voltage (V)", fontsize=14)
 channel2.set_xlim(0, start + padding)
-channel2.set_ylim(0.02, 1.2)  # Adjusted for consistent height
-channel2.plot(readout_pulse1, color='purple', linewidth=8, label='Readout Pulse')
-channel2.plot(readout_pulse2, color='purple', linewidth=8)
+channel2.set_ylim(0.02, 1.4)  # Adjusted for consistent height
+channel2.plot(tagger_trigger1, color='blue', linewidth=8, label='TimeTagger trigger')
+channel2.plot(tagger_trigger2, color='blue', linewidth=8)
 channel2.scatter([mid_segment, mid_segment + 300, mid_segment + 600], [0.5, 0.5, 0.5], color='black', s=300)
 channel2.legend(fontsize=12, loc='upper right')
 
