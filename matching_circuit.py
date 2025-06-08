@@ -7,13 +7,17 @@ ZL = 0.51 - 21.83j
 Q = np.sqrt((50 / 0.51) - 1)
 C = 1 / (2 * np.pi * 110e6 * Q * 0.51)
 L = 50 / Q / (2 * np.pi * 110e6)
+
+L_l = 21.83 / (2 * np.pi * 110e6)
+print(L_l)
+
 print(Q,C,L)
 
 def calculate_impedance(f):
 
     w = 2 * np.pi * f
 
-    L_l = 31.6e-9
+
     Z_ll = 1j * w * L_l
 
     ZL2 = ZL + Z_ll
