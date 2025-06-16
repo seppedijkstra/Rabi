@@ -150,12 +150,12 @@ print(total_pl)
 # # ======= SAVE DATA ===========
 np.savetxt(os.path.join(save_path, "PL_values.csv"), photon_counts, delimiter=",")  # Save as CSV
 np.savetxt(os.path.join(save_path, "averaged_PL.csv"), np.column_stack((pulse_lengths, total_pl)), delimiter=",",
-           header="Driving Time (ms), PL (counts)")
+           header="Driving Time (s), PL (counts)")
 #
 # # ======= PLOT & SAVE FIGURE ===========
 plt.figure(figsize=(8, 6))
 plt.plot(pulse_lengths, total_pl, marker='o', linestyle='-', color='b', label="Total PL vs. Driving Time")
-plt.xlabel('Driving Time (ms)')
+plt.xlabel('Driving Time (s)')
 plt.ylabel('PL (counts)')
 plt.title('Total PL vs. Pulse Time (Rabi Oscillations)')
 plt.grid(True)

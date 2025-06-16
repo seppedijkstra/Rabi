@@ -72,12 +72,14 @@ channel1 = fig.add_subplot(211)  # 2 rows, 1 col, fig1
 channel2 = fig.add_subplot(212)  # 2 rows, 1 col, fig2
 
 # Channel 1
-channel1.set_title('Channel 1 Outputs', fontsize=16, fontweight="bold", verticalalignment='baseline')
+channel1.set_title('Channel 1 Outputs', fontsize=28, fontweight="bold", verticalalignment='baseline')
 channel1.grid(True, which='both', linestyle='--', alpha=0.7)
-channel1.set_xlabel("Time (ps)", fontsize=14)
-channel1.set_ylabel("Voltage (V)", fontsize=14)
+channel1.set_xlabel("Time (ps)", fontsize=24)
+channel1.set_ylabel("Voltage (V)", fontsize=24)
+channel1.tick_params(axis='x', labelsize=24)  # Increase x-axis number size
+channel1.tick_params(axis='y', labelsize=24)  # Increase y-axis number size
 channel1.set_xlim(0, start + padding)
-channel1.set_ylim(0.02, 1.4)  # Adjusted for consistent height
+channel1.set_ylim(0.02, 1.7)  # Adjusted for consistent height
 channel1.plot(rf_first, color='orange', linewidth=8, label='RF Wave')
 channel1.plot(rf_last, color='orange', linewidth=8)
 channel1.plot(init_pulse1, color='red', linewidth=8, label='Init Pulse')
@@ -85,19 +87,21 @@ channel1.plot(init_pulse2, color='red', linewidth=8)
 channel1.plot(readout_pulse1, color='purple', linewidth=8, label='Readout Pulse')
 channel1.plot(readout_pulse2, color='purple', linewidth=8)
 channel1.scatter([mid_segment, mid_segment + 300, mid_segment + 600], [0.5, 0.5, 0.5], color='black', s=300)
-channel1.legend(fontsize=12, loc='upper right')
+channel1.legend(fontsize=24, loc='upper right')
 
 # Channel 2
-channel2.set_title('Channel 2 Outputs', fontsize=16, fontweight="bold", verticalalignment='baseline')
+channel2.set_title('Channel 2 Outputs', fontsize=28, fontweight="bold", verticalalignment='baseline')
 channel2.grid(True, which='both', linestyle='--', alpha=0.7)
-channel2.set_xlabel("Time (ps)", fontsize=14)
-channel2.set_ylabel("Voltage (V)", fontsize=14)
+channel2.set_xlabel("Time (ps)", fontsize=24)
+channel2.set_ylabel("Voltage (V)", fontsize=24)
+channel2.tick_params(axis='x', labelsize=24)  # Increase x-axis number size
+channel2.tick_params(axis='y', labelsize=24)  # Increase y-axis number size
 channel2.set_xlim(0, start + padding)
-channel2.set_ylim(0.02, 1.4)  # Adjusted for consistent height
+channel2.set_ylim(0.02, 1.7)  # Adjusted for consistent height
 channel2.plot(tagger_trigger1, color='blue', linewidth=8, label='TimeTagger trigger')
 channel2.plot(tagger_trigger2, color='blue', linewidth=8)
 channel2.scatter([mid_segment, mid_segment + 300, mid_segment + 600], [0.5, 0.5, 0.5], color='black', s=300)
-channel2.legend(fontsize=12, loc='upper right')
+channel2.legend(fontsize=24, loc='upper right')
 
 # Show the plot
 plt.show()
